@@ -67,8 +67,23 @@ public class FeedingState : MobBaseState
 
     private void FinishEating()
     {
-        // 补满饥饿值并回到闲逛
+        // 计算需要吃掉的点数（缺失的饥饿值）并扣除食物
         MobStatus status = brain.GetComponent<MobStatus>();
+        float hungerNeeded = status.data.foodConsumptionPerDay - status.currentHunger;
+        if (hungerNeeded > 0f && targetFood != null)
+        {
+            Food food = targetFood.GetComponent<Food>();
+            if (food != null)
+            {
+                int biteSize = Mathf.CeilToInt(hungerNeeded);
+                if (biteSize > 0)
+                {
+                    food.BeEaten(biteSize);
+                }
+            }
+        }
+
+        // 补满饥饿值并回到闲逛
         status.FullHealHunger();
         
         brain.agent.isStopped = false;
